@@ -100,7 +100,13 @@ export function initCanyonSpa(dom, options) {
                             inlineClassName: inlineClassName,
                         },
                     }),
-                ),
+                ).concat(                {
+                  range: new window.monaco.Range(20, 3, 20, 3), // 第3行第5列前插入
+                  options: {
+                    beforeContentClassName: 'insert-e-decoration',
+                    stickiness: window.monaco.editor.TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges
+                  }
+                }),
             );
         }
 

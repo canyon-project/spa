@@ -56,3 +56,12 @@
 .dark .content-class-no-found {
     background: #7A5474;
 }
+
+.insert-e-decoration::before {
+  content: 'E';
+  background-color: red;
+  color: white;
+  padding: 0 2px;
+  border-radius: 2px;
+  margin-right: 2px;
+}
