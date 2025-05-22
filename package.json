@@ -1,0 +1,19 @@
+{
+  "name": "canyon-report-spa",
+  "version": "0.0.1-beta.1",
+  "type": "module",
+  "main": "./dist/index.umd.cjs",
+  "module": "./dist/index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "typescript": "~5.8.3",
+    "vite": "^6.3.5"
+  },
+  "dependencies": {
+    "monaco-editor": "^0.52.2"
+  }
+}

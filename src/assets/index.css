@@ -1,0 +1,58 @@
+@font-face {
+    font-family: "IBMPlexMono";
+    src: url("./fonts/IBMPlexMono-Regular.woff2");
+    font-weight: normal;
+    font-style: normal;
+}
+#container {
+    width: 800px;
+    height: 600px;
+    border: 1px solid #ccc;
+}
+
+
+.YourHighlightClass {
+    padding: 0 !important;
+    color: white !important;
+    background: rgb(244, 176, 27) !important;
+}
+
+/*新版canyon-report*/
+
+.line-number-wrapper {
+    display: flex;
+    /*从右边开始*/
+    justify-content: flex-end;
+    /*text-align: right;*/
+}
+
+.line-number-wrapper .line-number {
+    /*width: 60px;*/
+    padding-right: 5px;
+}
+
+.line-number-wrapper .line-change {
+    width: 4px;
+    /*display: block;*/
+}
+
+.line-number-wrapper .line-coverage {
+    width: 60px;
+    padding-right: 5px;
+    color: rgba(0, 0, 0, 0.5);
+}
+
+.dark .line-number-wrapper .line-coverage {
+    width: 60px;
+    padding-right: 5px;
+    color: #eaeaea;
+}
+
+/*额外的*/
+.content-class-no-found {
+    background: #f6c6ce;
+}
+
+.dark .content-class-no-found {
+    background: #7A5474;
+}
