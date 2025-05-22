@@ -1,25 +1,46 @@
 import {annotateBranches, annotateFunctions, annotateStatements} from "./lib/annotate.ts";
+import { coreFn } from "./lib/coreFn.ts";
+import {lineNumbers} from "./lib/lineNumbers.ts";
 
 export function initCanyonSpa(dom, options) {
     const { coverage, content } = options;
-    if (!dom) {
+
+  const { lines } = coreFn(coverage, content);
+
+  const linesState = (() => {
+    return lines.map((line, index) => {
+      return {
+        lineNumber: index + 1,
+        change: [].includes(index + 1),
+        hit: line.executionNumber,
+      };
+    });
+  })()
+
+  const lineNumbersMinChars = (() => {
+    const maxHit = Math.max(...linesState.map((line) => line.hit));
+    return maxHit.toString().length + 8;
+  })()
+
+
+  if (!dom) {
         throw new Error("Container element not found");
     }
-    dom.style.height = "500px";
+    dom.style.height = "90vh";
     // 默认配置
     const defaultOptions = {
         value: content,
         language: 'javascript',
         theme: 'vs',
         lineHeight: 18,
-        // lineNumbers: (lineNumber) => {
-        //     return lineNumbers(
-        //         lineNumber,
-        //         linesState,
-        //         token.colorBgBase === "#000",
-        //     );
-        // },
-        // lineNumbersMinChars: lineNumbersMinChars,
+        lineNumbers: (lineNumber) => {
+            return lineNumbers(
+                lineNumber,
+                linesState,
+                false,
+            );
+        },
+        lineNumbersMinChars: lineNumbersMinChars,
         readOnly: true,
         folding: false,
         minimap: { enabled: false },
