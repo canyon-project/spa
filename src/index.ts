@@ -2,6 +2,13 @@ import {annotateBranches, annotateFunctions, annotateStatements} from "./lib/ann
 import { coreFn } from "./lib/coreFn.ts";
 import {lineNumbers} from "./lib/lineNumbers.ts";
 
+// console.log('加载spa完成')
+
+// @ts-ignore
+window.CanyonReportSpa = {initCanyonSpa}
+
+console.log(window.CanyonReportSpa)
+
 export function initCanyonSpa(dom, options) {
     const { coverage, content,diff } = options;
 
