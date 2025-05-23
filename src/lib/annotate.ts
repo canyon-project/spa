@@ -15,7 +15,7 @@ export function annotateStatements(fileCoverage: any) {
         endLine,
         startCol: startCol + 1,
         endCol: endCol + 1,
-        type,
+        type:'S',
       });
     }
   });
@@ -48,7 +48,7 @@ export function annotateFunctions(fileCoverage, structuredText) {
         endLine,
         startCol: startCol + 1,
         endCol: endCol + 1,
-        type,
+        type:'F',
       });
     }
   });
@@ -58,41 +58,71 @@ export function annotateFunctions(fileCoverage, structuredText) {
 export function annotateBranches(fileCoverage, structuredText) {
   const branchStats = fileCoverage.b;
   const branchMeta = fileCoverage.branchMap;
-  const annotateBranchesList: any[] = [];
-
   if (!branchStats) {
-    return annotateBranchesList;
+    return [];
   }
+
+  const arr = [];
 
   Object.entries(branchStats).forEach(([branchName, branchArray]) => {
     const sumCount = branchArray.reduce((p, n) => p + n, 0);
     const metaArray = branchMeta[branchName].locations;
+    let i;
+    let count;
+    let meta;
+    let startCol;
+    let endCol;
+    let startLine;
+    let endLine;
+    let openSpan;
+    let closeSpan;
+    let text;
 
-    // only highlight if partial branches are missing or if there is a single uncovered branch.
+
+
+
+    // only highlight if partial branches are missing or if there is a
+    // single uncovered branch.
     if (sumCount > 0 || (sumCount === 0 && branchArray.length === 1)) {
-      // Recover metaArray for implicit else (special case)
+      // Need to recover the metaArray placeholder item to count an implicit else
       if (
-        branchMeta[branchName].type === "if" &&
+        // Check if the branch is a conditional if branch.
+        branchMeta[branchName].type === 'if' &&
+        // Check if the branch has an implicit else.
         branchArray.length === 2 &&
+        // Check if the implicit else branch is unaccounted for.
         metaArray.length === 1 &&
+        // Check if the implicit else branch is uncovered.
         branchArray[1] === 0
       ) {
-        metaArray[1] = { start: {}, end: {} };
+        metaArray[1] = {
+          start: {},
+          end: {}
+        };
       }
 
-      metaArray.forEach((meta, index) => {
-        const count = branchArray[index];
-        const { start, end } = meta;
-        let { column: startCol, line: startLine } = start;
-        let { column: endCol, line: endLine } = end;
+      for (
+        i = 0;
+        i < branchArray.length && i < metaArray.length;
+        i += 1
+      ) {
+        count = branchArray[i];
+        meta = metaArray[i];
+        startCol = meta.start.column;
+        endCol = meta.end.column + 1;
+        startLine = meta.start.line;
+        endLine = meta.end.line;
 
-        // Handle implicit else branches
+        // If the branch is an implicit else from an if statement,
+        // then the coverage report won't show a statistic.
+        // Therefore, the previous branch will be used to report that
+        // there is no coverage on that implicit branch.
         if (
           count === 0 &&
           startLine === undefined &&
-          branchMeta[branchName].type === "if"
+          branchMeta[branchName].type === 'if'
         ) {
-          const prevMeta = metaArray[index - 1];
+          const prevMeta = metaArray[i - 1];
           startCol = prevMeta.start.column;
           endCol = prevMeta.end.column + 1;
           startLine = prevMeta.start.line;
@@ -100,21 +130,35 @@ export function annotateBranches(fileCoverage, structuredText) {
         }
 
         if (count === 0 && structuredText[startLine]) {
-          // Skip branches taken, handle multi-line spans
+          //skip branches taken
           if (endLine !== startLine) {
-            endCol = structuredText[startLine - 1].length;
+            // endCol = structuredText[
+            //   startLine
+            //   ].text.originalLength();
           }
-
-          annotateBranchesList.push({
-            startLine,
-            endLine,
-            startCol: startCol + 1,
-            endCol: endCol + 1,
-            type: count === 0 ? "no" : "yes",
-          });
+          text = structuredText[startLine].text;
+          if (branchMeta[branchName].type === 'if') {
+            arr.push({
+              startLine,
+              endLine,
+              startCol: startCol + 1,
+              endCol: endCol + 1,
+              type: (i === 0 ? 'I' : 'E'),
+              skip: meta.skip,
+            })
+          } else {
+            arr.push({
+              startLine,
+              endLine,
+              startCol: startCol + 1,
+              endCol: endCol + 1,
+              type: 'B',
+              skip: meta.skip,
+            })
+          }
         }
-      });
+      }
     }
   });
-  return annotateBranchesList;
+  return arr
 }

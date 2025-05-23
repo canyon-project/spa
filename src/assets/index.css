@@ -49,19 +49,32 @@
 }
 
 /*额外的*/
-.content-class-no-found {
-    background: #f6c6ce;
+.content-class-no-found-branch {
+    background: rgba(255, 229, 100, 0.6) !important;
+}
+
+.content-class-no-found{
+    background: rgba(255, 128, 160, 0.3);
 }
 
 .dark .content-class-no-found {
-    background: #7A5474;
+    background: #ff000033;
 }
 
 .insert-e-decoration::before {
   content: 'E';
-  background-color: red;
-  color: white;
+  background-color: black;
+  color: yellow;
   padding: 0 2px;
   border-radius: 2px;
-  margin-right: 2px;
+  margin-right: 5px;
+}
+
+.insert-i-decoration::before {
+  content: 'I';
+  background-color: black;
+  color: yellow;
+  padding: 0 2px;
+  border-radius: 2px;
+  margin-right: 5px;
 }

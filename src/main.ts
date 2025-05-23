@@ -18,5 +18,6 @@ setTimeout(()=>{
     initCanyonSpa(document.getElementById('app'),{
         coverage: mockData.coverage,
         content: mockData.content,
+      diff:[10,12]
     })
 },100)

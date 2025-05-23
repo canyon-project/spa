@@ -3,7 +3,9 @@ import { coreFn } from "./lib/coreFn.ts";
 import {lineNumbers} from "./lib/lineNumbers.ts";
 
 export function initCanyonSpa(dom, options) {
-    const { coverage, content } = options;
+    const { coverage, content,diff } = options;
+
+    const addLines = diff||[]
 
   const { lines } = coreFn(coverage, content);
 
@@ -11,7 +13,7 @@ export function initCanyonSpa(dom, options) {
     return lines.map((line, index) => {
       return {
         lineNumber: index + 1,
-        change: [].includes(index + 1),
+        change: addLines.includes(index + 1),
         hit: line.executionNumber,
       };
     });
@@ -60,56 +62,70 @@ export function initCanyonSpa(dom, options) {
         // 如果已经加载，直接创建编辑器
         const editor = window.monaco.editor.create(dom, defaultOptions);
 
+      const decorations = (()=>{
 
+        const annotateFunctionsList = annotateFunctions(coverage, content);
+        const annotateStatementsList = annotateStatements(coverage,content);
+        const annotateBranchesList = annotateBranches(coverage, content);
 
+        const all = [
+          ...annotateStatementsList,
+          ...annotateFunctionsList,
+          ...annotateBranchesList,
+        ]
 
+        const arr = []
+        for (let i = 0; i < all.length; i++) {
+          const {startLine,
+            startCol,
+            endLine,
+            endCol,
+            // type,
+          } = all[i]
+          if (all[i].type==='S'||all[i].type==='F') {
+            arr.push({
+              range: new window.monaco.Range(startLine, startCol, endLine, endCol), // 第3行第5列前插入
+              options: {
+                isWholeLine: false,
+                inlineClassName: 'content-class-no-found',
+              },
+            })
+          } else if (all[i].type==='B'){
+            arr.push({
+              range: new window.monaco.Range(startLine, startCol, endLine, endCol), // 第3行第5列前插入
+              options: {
+                isWholeLine: false,
+                inlineClassName: 'content-class-no-found-branch',
+              },
+            })
+          } else if (all[i].type==='I'){
+            arr.push({
+              range: new window.monaco.Range(startLine, startCol, startLine, startCol), // 第3行第5列前插入
+              options: {
+                beforeContentClassName: 'insert-i-decoration',
+                stickiness: window.monaco.editor.TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges
+              }
+            })
+          } else if (all[i].type==='E'){
+            arr.push({
+              range: new window.monaco.Range(startLine, startCol, startLine, startCol), // 第3行第5列前插入
+              options: {
+                beforeContentClassName: 'insert-e-decoration',
+                stickiness: window.monaco.editor.TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges
+              }
+            })
+          }
+        }
+        return arr
+      })()
 
-        const decorations = (() => {
-            const annotateFunctionsList = annotateFunctions(coverage, content);
-            const annotateStatementsList = annotateStatements(coverage);
-            const annotateBranchesList = annotateBranches(coverage, content);
-            return [
-                ...annotateStatementsList,
-                ...annotateFunctionsList,
-                ...annotateBranchesList,
-            ].map((i) => {
-                return {
-                    inlineClassName: "content-class-no-found",
-                    startLine: i.startLine,
-                    startCol: i.startCol,
-                    endLine: i.endLine,
-                    endCol: i.endCol,
-                };
-            });
-        })()
-
+      console.log(decorations,'decorations')
 
         if (editor) {
             editor?.deltaDecorations?.(
                 [], // oldDecorations 每次清空上次标记的
-                decorations.map(
-                    ({ inlineClassName, startLine, startCol, endLine, endCol }) => ({
-                        range: new window.monaco.Range(
-                            startLine,
-                            startCol,
-                            endLine,
-                            endCol,
-                        ),
-                        options: {
-                            isWholeLine: false,
-                            inlineClassName: inlineClassName,
-                        },
-                    }),
-                ).concat(                {
-                  range: new window.monaco.Range(20, 3, 20, 3), // 第3行第5列前插入
-                  options: {
-                    beforeContentClassName: 'insert-e-decoration',
-                    stickiness: window.monaco.editor.TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges
-                  }
-                }),
+              decorations
             );
         }
-
-
     }
 }
