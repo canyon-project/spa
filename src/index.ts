@@ -10,7 +10,7 @@ window.CanyonReportSpa = {initCanyonSpa}
 console.log(window.CanyonReportSpa)
 
 export function initCanyonSpa(dom, options) {
-    const { coverage, content,diff } = options;
+    const { coverage, content,diff, theme } = options;
 
     const addLines = diff||[]
 
@@ -40,7 +40,7 @@ export function initCanyonSpa(dom, options) {
     const defaultOptions = {
         value: content,
         language: 'javascript',
-        theme: 'vs',
+        theme: theme==='dark'?'vs-dark':'vs',
         lineHeight: 18,
         lineNumbers: (lineNumber) => {
             return lineNumbers(
