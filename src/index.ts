@@ -10,7 +10,7 @@ window.CanyonReportSpa = {initCanyonSpa}
 console.log(window.CanyonReportSpa)
 
 export function initCanyonSpa(dom, options) {
-    const { coverage, content,diff, theme } = options;
+    const { coverage, content,diff, theme, height } = options;
 
     const addLines = diff||[]
 
@@ -35,7 +35,7 @@ export function initCanyonSpa(dom, options) {
   if (!dom) {
         throw new Error("Container element not found");
     }
-    dom.style.height = "90vh";
+    dom.style.height = height||'100%';
     // 默认配置
     const defaultOptions = {
         value: content,
