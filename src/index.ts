@@ -35,7 +35,7 @@ export function initCanyonSpa(dom, options) {
   if (!dom) {
         throw new Error("Container element not found");
     }
-    dom.style.height = height||'100%';
+    dom.style.height = height||'calc(100vh - 240px)'; // 设置容器高度
     // 默认配置
     const defaultOptions = {
         value: content,
