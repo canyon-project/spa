@@ -95,6 +95,7 @@ export function initCanyonSpa(dom, options) {
               options: {
                 isWholeLine: false,
                 inlineClassName: 'content-class-no-found',
+                hoverMessage: { value:all[i].type==='S' ? "statement not covered" : "function not covered" }
               },
             })
           } else if (all[i].type==='B'){
@@ -103,6 +104,7 @@ export function initCanyonSpa(dom, options) {
               options: {
                 isWholeLine: false,
                 inlineClassName: 'content-class-no-found-branch',
+                hoverMessage: { value: "branch not covered" }
               },
             })
           } else if (all[i].type==='I'){
