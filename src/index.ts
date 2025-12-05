@@ -10,7 +10,19 @@ window.CanyonReportSpa = {initCanyonSpa}
 console.log(window.CanyonReportSpa)
 
 export function initCanyonSpa(dom, options) {
-    const { coverage, content,diff, theme, height } = options;
+    const { 
+      coverage, 
+      content,
+      diff, 
+      theme, 
+      height,
+      // 装饰器显示控制，默认全部显示
+      showDecorations = {
+        statements: true,  // 显示语句装饰器
+        functions: true,   // 显示函数装饰器
+        branches: true,    // 显示分支装饰器
+      }
+    } = options;
 
     const addLines = diff||[]
 
@@ -71,15 +83,23 @@ export function initCanyonSpa(dom, options) {
 
       const decorations = (()=>{
 
-        const annotateFunctionsList = annotateFunctions(coverage, content);
-        const annotateStatementsList = annotateStatements(coverage,content);
-        const annotateBranchesList = annotateBranches(coverage, content);
-
-        const all = [
-          ...annotateStatementsList,
-          ...annotateFunctionsList,
-          ...annotateBranchesList,
-        ]
+        const all = []
+        
+        // 根据参数决定是否添加对应的装饰器
+        if (showDecorations.statements) {
+          const annotateStatementsList = annotateStatements(coverage, content);
+          all.push(...annotateStatementsList);
+        }
+        
+        if (showDecorations.functions) {
+          const annotateFunctionsList = annotateFunctions(coverage, content);
+          all.push(...annotateFunctionsList);
+        }
+        
+        if (showDecorations.branches) {
+          const annotateBranchesList = annotateBranches(coverage, content);
+          all.push(...annotateBranchesList);
+        }
 
         const arr = []
         for (let i = 0; i < all.length; i++) {

@@ -20,5 +20,10 @@ setTimeout(()=>{
         content: mockData.content,
         diff:[10,12],
         height:'calc(100vh - 50px)',
+        showDecorations: {
+            statements: true,
+            functions: true,
+            branches: true,
+        }
     })
 },100)
