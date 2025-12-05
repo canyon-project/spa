@@ -7,7 +7,7 @@ import {lineNumbers} from "./lib/lineNumbers.ts";
 // @ts-ignore
 window.CanyonReportSpa = {initCanyonSpa}
 
-console.log(window.CanyonReportSpa)
+// console.log(window.CanyonReportSpa)
 
 export function initCanyonSpa(dom, options) {
     const { 
@@ -26,7 +26,75 @@ export function initCanyonSpa(dom, options) {
 
     const addLines = diff||[]
 
-  const { lines } = coreFn(coverage, content);
+  const { lines, rows } = coreFn(coverage, content);
+
+  // 计算新增行关联的语句及其覆盖状态，并在控制台打印表格
+  if (addLines.length > 0 && coverage.s && coverage.statementMap) {
+    const addedLinesSet = new Set(addLines);
+    const relatedStatements: Array<{
+      状态: string;
+      定位: string;
+      关联变更行: string;
+      执行次数: string;
+    }> = [];
+    
+    // 找出所有新增行关联的语句
+    Object.entries(coverage.statementMap).forEach(([stId, meta]: any) => {
+      const startLine = meta.start.line;
+      const endLine = meta.end.line;
+      const startCol = meta.start.column;
+      const endCol = meta.end.column;
+      
+      // 检查语句是否与新增行有交集，并收集所有关联的变更行号
+      const relatedLines: number[] = [];
+      for (let line = startLine; line <= endLine; line++) {
+        if (addedLinesSet.has(line)) {
+          relatedLines.push(line);
+        }
+      }
+      
+      if (relatedLines.length > 0) {
+        const count = coverage.s[stId] || 0;
+        const covered = count > 0;
+        
+        // 格式化定位信息
+        const locationDisplay = endLine > startLine
+          ? `${startLine}:${startCol + 1} - ${endLine}:${endCol + 1}`
+          : `${startLine}:${startCol + 1}`;
+        
+        // 格式化关联变更行
+        const relatedLinesDisplay = relatedLines.join(', ');
+        
+        relatedStatements.push({
+          状态: covered ? '✓ 已覆盖' : '✗ 未覆盖',
+          定位: locationDisplay,
+          关联变更行: relatedLinesDisplay,
+          执行次数: covered ? `${count} 次` : '未覆盖',
+        });
+      }
+    });
+    
+    // 按行号排序
+    relatedStatements.sort((a, b) => {
+      const aLine = parseInt(a.定位.split(':')[0]);
+      const bLine = parseInt(b.定位.split(':')[0]);
+      return aLine - bLine;
+    });
+    
+    // 计算覆盖率
+    const coveredCount = relatedStatements.filter(s => s.状态.includes('✓')).length;
+    const totalCount = relatedStatements.length;
+    const coveragePercent = totalCount > 0 ? Math.round((coveredCount / totalCount) * 100) : 0;
+    
+    // 在控制台打印表格
+    console.log(`\n%c新增代码语句 (${totalCount}个) - 覆盖率: ${coveragePercent}% (${coveredCount}/${totalCount})`, 
+      'font-weight: bold; font-size: 14px; color: #007acc;');
+    if (relatedStatements.length > 0) {
+      console.table(relatedStatements);
+    } else {
+      console.log('暂无新增代码语句');
+    }
+  }
 
   const linesState = (() => {
     return lines.map((line, index) => {
@@ -148,7 +216,7 @@ export function initCanyonSpa(dom, options) {
         return arr
       })()
 
-      console.log(decorations,'decorations')
+      // console.log(decorations,'decorations')
 
         if (editor) {
             editor?.deltaDecorations?.(

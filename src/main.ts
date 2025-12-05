@@ -4,7 +4,7 @@ import mockData from './mock/data.json'
 import * as monaco from 'https://cdn.jsdelivr.net/npm/monaco-editor@0.47.0/+esm';
 import {initCanyonSpa} from "./index.ts";
 window.monaco = monaco;
-console.log(window.monaco);
+// console.log(window.monaco);
 // const s = document.createElement('script');
 // s.src = './index.js';
 // document.body.appendChild(s);
